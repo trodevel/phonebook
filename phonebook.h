@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6560 $ $Date:: 2017-04-10 #$ $Author: serge $
+// $Revision: 6578 $ $Date:: 2017-04-11 #$ $Author: serge $
 
 #ifndef LIB_PHONEBOOK_PHONEBOOK_H
 #define LIB_PHONEBOOK_PHONEBOOK_H
@@ -69,7 +69,7 @@ public:
             ContactPhone::type_e    type,
             const std::string       & phone );
 
-    bool modify_contact(
+    bool modify_phone(
             std::string             * error_msg,
             uint32_t                id,
             ContactPhone::type_e    type,
@@ -97,6 +97,7 @@ private:
 
 private:
 
+    Contact * find_contact( uint32_t id );
     Contact * find_contact_by_phone_id( uint32_t id );
 
     uint32_t    get_next_contact_id();
