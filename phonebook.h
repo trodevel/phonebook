@@ -19,15 +19,17 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6578 $ $Date:: 2017-04-11 #$ $Author: serge $
+// $Revision: 6615 $ $Date:: 2017-04-12 #$ $Author: serge $
 
 #ifndef LIB_PHONEBOOK_PHONEBOOK_H
 #define LIB_PHONEBOOK_PHONEBOOK_H
 
-#include "contact.h"        // Contact
-
 #include <set>              // std::set
 #include <vector>           // std::vector
+
+#include "contact.h"        // Contact
+#include "status.h"         // Status
+
 
 namespace phonebook
 {
@@ -81,8 +83,9 @@ public:
 
     std::vector<const Contact *> find_contacts( const std::string & regex, uint32_t page_size, uint32_t page_num );
 
-    const Contact * get_contact( uint32_t id ) const;
-    const ContactPhone * get_phone( uint32_t id ) const;
+    Contact * find_contact( uint32_t id );
+    const Contact * find_contact( uint32_t id ) const;
+    const ContactPhone * find_phone( uint32_t id ) const;
 
     uint32_t find_user_id_by_phone_id( uint32_t id ) const;
     uint32_t find_user_id_by_contact_id( uint32_t id ) const;
@@ -97,11 +100,26 @@ private:
 
 private:
 
-    Contact * find_contact( uint32_t id );
+    bool add_contact_with_id(
+            std::string         * error_msg,
+            uint32_t            id,
+            uint32_t            user_id,
+            gender_e            gender,
+            const std::string   & name,
+            const std::string   & first_name,
+            const Date          & birthday,
+            const std::string   & notice );
+
     Contact * find_contact_by_phone_id( uint32_t id );
+    const Contact * find_contact_by_phone_id( uint32_t id ) const;
 
     uint32_t    get_next_contact_id();
     uint32_t    get_next_phone_id();
+
+    Status      get_status() const;
+    void        init( const Status & status );
+    void        clear();
+    void        import( const Contact * c );
 
 private:
 

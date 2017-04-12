@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6588 $ $Date:: 2017-04-11 #$ $Author: serge $
+// $Revision: 6603 $ $Date:: 2017-04-12 #$ $Author: serge $
 
 #include <iostream>                         // std::cout
 
@@ -27,6 +27,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include "utils/logfile_time_writer.h"      // LogfileTimeWriter
 
 #include "phonebook.h"
+#include "str_helper.h"                     // StrHelper
 
 void test_01( uint32_t log_id )
 {
@@ -332,6 +333,116 @@ void test_09( uint32_t log_id )
     }
 }
 
+void test_10( uint32_t log_id )
+{
+    std::cout << "test 10" << "\n";
+
+    phonebook::Phonebook pb;
+
+    pb.init( log_id );
+
+    uint32_t    id;
+    std::string error_msg;
+
+    phonebook::Date date    = { 1970, 01, 01 };
+
+    auto b = pb.add_contact( & id, & error_msg, 1, phonebook::gender_e::MALE, "Doe", "John", date, "test contact" );
+
+    if( b )
+    {
+        std::cout << "OK: contact added "<< id << "\n";
+
+        uint32_t phone_id;
+
+        b = pb.add_phone( & phone_id, & error_msg, id, phonebook::ContactPhone::type_e::LANDLINE, "+491234567890" );
+
+        if( b )
+        {
+            std::cout << "OK: phone added "<< phone_id << "\n";
+        }
+        else
+        {
+            std::cout << "ERROR: cannot add phone " << error_msg << "\n";
+        }
+
+        b = pb.add_phone( & phone_id, & error_msg, id, phonebook::ContactPhone::type_e::MOBILE, "+498976543210" );
+
+        if( b )
+        {
+            std::cout << "OK: phone added "<< phone_id << "\n";
+        }
+        else
+        {
+            std::cout << "ERROR: cannot add phone " << error_msg << "\n";
+        }
+
+        auto contact = pb.find_contact( id );
+
+        if( contact != nullptr )
+        {
+            std::cout << "OK: found contact: " << phonebook::StrHelper::to_string( *contact ) << "\n";
+        }
+        else
+        {
+            std::cout << "ERROR: cannot find contact id " << id << "\n";
+        }
+    }
+    else
+    {
+        std::cout << "ERROR: cannot add contact " << error_msg << "\n";
+    }
+}
+
+
+void test_11( uint32_t log_id )
+{
+    std::cout << "test 11" << "\n";
+
+    phonebook::Phonebook pb;
+
+    pb.init( log_id );
+
+    uint32_t    id;
+    std::string error_msg;
+
+    phonebook::Date date    = { 1970, 01, 01 };
+
+    auto b = pb.add_contact( & id, & error_msg, 1, phonebook::gender_e::MALE, "Doe", "John", date, "test contact" );
+
+    if( b )
+    {
+        std::cout << "OK: contact added "<< id << "\n";
+
+        uint32_t phone_id;
+
+        b = pb.add_phone( & phone_id, & error_msg, id, phonebook::ContactPhone::type_e::LANDLINE, "+491234567890" );
+
+        if( b )
+        {
+            std::cout << "OK: phone added "<< phone_id << "\n";
+
+            auto phone = pb.find_phone( phone_id );
+
+            if( phone != nullptr )
+            {
+                std::cout << "OK: found phone: " << phonebook::StrHelper::to_string( *phone ) << "\n";
+            }
+            else
+            {
+                std::cout << "ERROR: cannot find phone id " << phone_id << "\n";
+            }
+        }
+        else
+        {
+            std::cout << "ERROR: cannot add phone " << error_msg << "\n";
+        }
+    }
+    else
+    {
+        std::cout << "ERROR: cannot add contact " << error_msg << "\n";
+    }
+}
+
 int main()
 {
     dummy_logger::set_log_level( log_levels_log4j::DEBUG );
@@ -347,6 +458,8 @@ int main()
     test_07( log_id );
     test_08( log_id );
     test_09( log_id );
+    test_10( log_id );
+    test_11( log_id );
 
     std::cout << "exit" << std::endl;
 

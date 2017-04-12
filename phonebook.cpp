@@ -19,12 +19,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6584 $ $Date:: 2017-04-11 #$ $Author: serge $
+// $Revision: 6615 $ $Date:: 2017-04-12 #$ $Author: serge $
 
 #include "phonebook.h"          // self
 
 #include "utils/dummy_logger.h"     // dummy_log_debug
 #include "utils/assert.h"           // ASSERT
+
+#include "str_helper.h"             // StrHelper
 
 namespace phonebook
 {
@@ -53,7 +55,24 @@ bool Phonebook::add_contact(
         const Date          & birthday,
         const std::string   & notice )
 {
-    dummy_log_debug( log_id_, "add contact: user id %u, %u, %s, %s, %s", user_id, static_cast<uint32_t>( gender ), name.c_str(), first_name.c_str(), notice.c_str() );
+    dummy_log_debug( log_id_, "add contact: user id %u, %s, %s, %s, %s", user_id, StrHelper::to_string( gender ).c_str(), name.c_str(), first_name.c_str(), notice.c_str() );
+
+    *id = get_next_contact_id();
+
+    return add_contact_with_id( error_msg, *id, user_id, gender, name, first_name, birthday, notice );
+}
+
+bool Phonebook::add_contact_with_id(
+        std::string         * error_msg,
+        uint32_t            id,
+        uint32_t            user_id,
+        gender_e            gender,
+        const std::string   & name,
+        const std::string   & first_name,
+        const Date          & birthday,
+        const std::string   & notice )
+{
+    dummy_log_debug( log_id_, "add_contact_with_id: contact id %u, user id %u, %s, %s, %s, %s", id, user_id, StrHelper::to_string( gender ).c_str(), name.c_str(), first_name.c_str(), notice.c_str() );
 
     auto contact = new Contact;
 
@@ -62,37 +81,39 @@ bool Phonebook::add_contact(
     contact->first_name = first_name;
     contact->birthday   = birthday;
     contact->notice     = notice;
+    contact->id         = id;
 
-    *id = get_next_contact_id();
+    auto b = map_id_to_contact_.insert( std::make_pair( id, contact ) ).second;
 
-    contact->id         = *id;
+    if( b == false )
+    {
+        dummy_log_error( log_id_, "add_contact_with_id: contact id %u already exists", id );
+        * error_msg = "contact id " + std::to_string( id ) + " already exists";
+        return false;
+    }
 
-    auto b = map_id_to_contact_.insert( std::make_pair( *id, contact ) ).second;
-
-    ASSERT( b );
-
-    b = map_contact_id_to_user_id_.insert( std::make_pair( *id, user_id )).second;
+    b = map_contact_id_to_user_id_.insert( std::make_pair( id, user_id )).second;
 
     ASSERT( b );
 
     auto it = map_user_id_to_contact_ids_.find( user_id );
     if( it == map_user_id_to_contact_ids_.end() )
     {
-        dummy_log_debug( log_id_, "adding contact for new user id %u, contact id %u", user_id, * id );
+        dummy_log_debug( log_id_, "adding contact for new user id %u, contact id %u", user_id, id );
 
         std::set<uint32_t> ids;
 
-        ids.insert( *id );
+        ids.insert( id );
 
         map_user_id_to_contact_ids_.insert( std::make_pair( user_id, ids ) );
     }
     else
     {
-        dummy_log_debug( log_id_, "adding contact for existing user id %u, contact id %u", user_id, * id );
+        dummy_log_debug( log_id_, "adding contact for existing user id %u, contact id %u", user_id, id );
 
         auto & ids = it->second;
 
-        ids.insert( *id );
+        ids.insert( id );
     }
 
     return true;
@@ -107,7 +128,7 @@ bool Phonebook::modify_contact(
         const Date          & birthday,
         const std::string   & notice )
 {
-    dummy_log_debug( log_id_, "modify contact: contact id %u, %u, %s, %s, %s", id, static_cast<uint32_t>( gender ), name.c_str(), first_name.c_str(), notice.c_str() );
+    dummy_log_debug( log_id_, "modify contact: contact id %u, %s, %s, %s, %s", id, StrHelper::to_string( gender ).c_str(), name.c_str(), first_name.c_str(), notice.c_str() );
 
     auto * contact = find_contact( id );
 
@@ -183,7 +204,7 @@ bool Phonebook::add_phone(
         ContactPhone::type_e    type,
         const std::string       & phone )
 {
-    dummy_log_debug( log_id_, "add phone: contact id %u, %u, %s", contact_id, static_cast<uint32_t>( type ), phone.c_str() );
+    dummy_log_debug( log_id_, "add phone: contact id %u, %s, %s", contact_id, StrHelper::to_string( type ).c_str(), phone.c_str() );
 
     auto * contact = find_contact( contact_id );
 
@@ -221,7 +242,7 @@ bool Phonebook::modify_phone(
         ContactPhone::type_e    type,
         const std::string       & phone )
 {
-    dummy_log_debug( log_id_, "modify phone: phone id %u, %u, %s", id, static_cast<uint32_t>( type ), phone.c_str() );
+    dummy_log_debug( log_id_, "modify phone: phone id %u, %s, %s", id, StrHelper::to_string( type ).c_str(), phone.c_str() );
 
     auto * contact = find_contact_by_phone_id( id );
 
@@ -274,26 +295,36 @@ std::vector<const Contact *> Phonebook::find_contacts( const std::string & regex
 {
     dummy_log_debug( log_id_, "find_contacts: '%s' %u %u", regex.c_str(), page_size, page_num );
 
+    std::vector<const Contact *> res;
+
+    return res;
 }
 
-const Contact * Phonebook::get_contact( uint32_t id ) const
+const ContactPhone * Phonebook::find_phone( uint32_t id ) const
 {
-    auto it = map_id_to_contact_.find( id );
+    auto * contact = find_contact_by_phone_id( id );
 
-    if( it == map_id_to_contact_.end() )
+    if( contact == nullptr )
         return nullptr;
 
-    return it->second;
-}
+    auto & phones = contact->map_id_to_phone;
 
-const ContactPhone * Phonebook::get_phone( uint32_t id ) const
-{
+    auto it = phones.find( id );
 
+    if( it == phones.end() )
+        return nullptr;
+
+    return & it->second;
 }
 
 uint32_t Phonebook::find_user_id_by_phone_id( uint32_t id ) const
 {
+    auto it = map_phone_id_to_contact_id_.find( id );
 
+    if( it == map_phone_id_to_contact_id_.end() )
+        return 0;
+
+    return find_user_id_by_contact_id( it->second );
 }
 
 uint32_t Phonebook::find_user_id_by_contact_id( uint32_t id ) const
@@ -316,6 +347,16 @@ Contact * Phonebook::find_contact( uint32_t id )
     return it->second;
 }
 
+const Contact * Phonebook::find_contact( uint32_t id ) const
+{
+    auto it = map_id_to_contact_.find( id );
+
+    if( it == map_id_to_contact_.end() )
+        return nullptr;
+
+    return it->second;
+}
+
 Contact * Phonebook::find_contact_by_phone_id( uint32_t id )
 {
     auto it = map_phone_id_to_contact_id_.find( id );
@@ -326,16 +367,65 @@ Contact * Phonebook::find_contact_by_phone_id( uint32_t id )
     return find_contact( it->second );
 }
 
-uint32_t    Phonebook::get_next_contact_id()
+const Contact * Phonebook::find_contact_by_phone_id( uint32_t id ) const
+{
+    auto it = map_phone_id_to_contact_id_.find( id );
+
+    if( it == map_phone_id_to_contact_id_.end() )
+        return nullptr;
+
+    return find_contact( it->second );
+}
+
+uint32_t Phonebook::get_next_contact_id()
 {
     return ++last_contact_id_;
 }
 
-uint32_t    Phonebook::get_next_phone_id()
+uint32_t Phonebook::get_next_phone_id()
 {
     return ++last_phone_id_;
 }
 
+Status Phonebook::get_status() const
+{
+    Status res;
 
+    res.last_contact_id     = last_contact_id_;
+    res.last_phone_id       = last_phone_id_;
+    res.map_id_to_contact   = map_id_to_contact_;
+
+    return res;
+}
+
+void Phonebook::init( const Status & s )
+{
+    dummy_log_debug( log_id_, "init from status: %u %u, size %u", s.last_contact_id, s.last_phone_id, s.map_id_to_contact.size() );
+
+    clear();
+
+    for( auto c : s.map_id_to_contact )
+    {
+        import( c.second );
+    }
+}
+
+void Phonebook::clear()
+{
+    dummy_log_debug( log_id_, "clear" );
+
+    last_contact_id_    = 0;
+    last_phone_id_      = 0;
+
+    map_id_to_contact_.clear();
+    map_user_id_to_contact_ids_.clear();
+    map_contact_id_to_user_id_.clear();
+    map_phone_id_to_contact_id_.clear();
+}
+
+void Phonebook::import( const Contact * c )
+{
+
+}
 
 } // namespace phonebook
