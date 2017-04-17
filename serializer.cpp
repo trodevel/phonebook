@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6612 $ $Date:: 2017-04-12 #$ $Author: serge $
+// $Revision: 6645 $ $Date:: 2017-04-13 #$ $Author: serge $
 
 #include "serializer.h"     // self
 
@@ -31,36 +31,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 namespace serializer
 {
 
-phonebook::Contact* load( std::istream & is, phonebook::Contact* e )
+phonebook::ContactFlat* load( std::istream & is, phonebook::ContactFlat* e )
 {
-    if( e != nullptr )
-        throw std::invalid_argument( "Serializer::load: e must be null" );
+    if( e == nullptr )
+        throw std::invalid_argument( "Serializer::load: e must not be null" );
 
-    auto el = new phonebook::Contact;
-
-    auto res = phonebook::Serializer::load( is, static_cast< phonebook::Contact *>( el ) );
-
-    if( res == nullptr )
-    {
-        delete el;
-        return nullptr;
-    }
-
-    return el;
-}
-
-phonebook::Contact** load( std::istream & is, phonebook::Contact** e )
-{
-    auto res = load( is, static_cast< phonebook::Contact *>( nullptr ) );
-
-    if( res == nullptr )
-    {
-        return nullptr;
-    }
-
-    *e =  res;
-
-    return e;
+    return phonebook::Serializer::load( is, e );
 }
 
 phonebook::ContactPhone* load( std::istream & is, phonebook::ContactPhone* e )
@@ -73,9 +49,9 @@ bool save( std::ostream & os, const phonebook::ContactPhone & e )
     return phonebook::Serializer::save( os, e );
 }
 
-bool save( std::ostream & os, const phonebook::Contact * e )
+bool save( std::ostream & os, const phonebook::ContactFlat & e )
 {
-    return phonebook::Serializer::save( os, * e );
+    return phonebook::Serializer::save( os, e );
 }
 
 }
@@ -130,16 +106,14 @@ ContactPhone* Serializer::load_1( std::istream & is, ContactPhone* e )
     if( e == nullptr )
         throw std::invalid_argument( "Serializer::load: ContactPhone is null" );
 
-    uint32_t    id;
     uint32_t    type;
     std::string phone_number;
 
-    is >> id >> type >> phone_number;
+    is >> type >> phone_number;
 
     if( is.fail() )
         return nullptr;
 
-    e->id           = id;
     e->type         = static_cast<ContactPhone::type_e>( type );
     e->phone_number   = utils::nonascii_hex_codec::decode( phone_number );
 
@@ -157,8 +131,7 @@ bool Serializer::save( std::ostream & os, const ContactPhone & e )
 
     os << VERSION << " ";
 
-    os << e.id     << " "
-            << static_cast<unsigned>( e.type ) << " "
+    os << static_cast<unsigned>( e.type ) << " "
             << utils::nonascii_hex_codec::encode( e.phone_number );
 
     if( os.fail() )
@@ -172,13 +145,12 @@ Contact* Serializer::load_1( std::istream & is, Contact* e )
     if( e == nullptr )
         throw std::invalid_argument( "Serializer::load: Contact is null" );
 
-    uint32_t    id;
     uint32_t    gender;
     std::string name;
     std::string first_name;
     std::string notice;
 
-    is >> id >> gender >> name >> first_name;
+    is >> gender >> name >> first_name;
 
     auto b = load( is, & e->birthday );
 
@@ -190,7 +162,6 @@ Contact* Serializer::load_1( std::istream & is, Contact* e )
     if( is.fail() )
         return nullptr;
 
-    e->id           = id;
     e->gender       = static_cast<gender_e>( gender );
     e->name         = utils::nonascii_hex_codec::decode( name );
     e->first_name   = utils::nonascii_hex_codec::decode( first_name );
@@ -217,10 +188,9 @@ bool Serializer::save( std::ostream & os, const Contact & e )
 
     os << VERSION << " ";
 
-    os << e.id     << " "
-            << static_cast<unsigned>( e.gender ) << " "
+    os <<  static_cast<unsigned>( e.gender ) << " "
             << utils::nonascii_hex_codec::encode( e.name ) << " "
-            << utils::nonascii_hex_codec::encode( e.first_name );
+            << utils::nonascii_hex_codec::encode( e.first_name ) << " ";
 
     if( save( os, e.birthday ) == false )
         return false;
@@ -238,14 +208,58 @@ bool Serializer::save( std::ostream & os, const Contact & e )
     return true;
 }
 
+ContactFlat* Serializer::load_1( std::istream & is, ContactFlat* e )
+{
+    if( e == nullptr )
+        throw std::invalid_argument( "Serializer::load: ContactFlat is null" );
+
+    is >> e->id >> e->user_id;
+
+    if( is.fail() )
+        return nullptr;
+
+    auto contact  = new Contact;
+
+    auto b = load( is, contact );
+
+    if( b == nullptr )
+        return nullptr;
+
+    e->contact  = contact;
+
+    return e;
+}
+
+ContactFlat* Serializer::load( std::istream & is, ContactFlat* e )
+{
+    return load_t_1( is, e );
+}
+
+bool Serializer::save( std::ostream & os, const ContactFlat & e )
+{
+    static const unsigned int VERSION = 1;
+
+    os << VERSION << " ";
+
+    os << e.id << " " << e.user_id << " ";
+
+    if( os.fail() )
+        return false;
+
+    if( save( os, * e.contact ) == false )
+        return false;
+
+    return true;
+}
+
 Status* Serializer::load_1( std::istream & is, Status* e )
 {
     if( e == nullptr )
         throw std::invalid_argument( "Serializer::load: Status is null" );
 
-    uint32_t                last_contact_id;
-    uint32_t                last_phone_id;
-    Status::MapIdToContact  map_id_to_contact;
+    uint32_t                    last_contact_id;
+    uint32_t                    last_phone_id;
+    Status::VectorContactFlat   contacts;
 
     is >> last_contact_id >> last_phone_id ;
 
@@ -255,7 +269,7 @@ Status* Serializer::load_1( std::istream & is, Status* e )
     e->last_contact_id  = last_contact_id;
     e->last_phone_id    = last_phone_id;
 
-    auto res = serializer::load( is, & e->map_id_to_contact );
+    auto res = serializer::load( is, & e->contacts );
 
     if( res == nullptr )
     {
@@ -279,7 +293,7 @@ bool Serializer::save( std::ostream & os, const Status & e )
     os << e.last_contact_id << " "
             << e.last_phone_id << " ";
 
-    if( serializer::save( os, e.map_id_to_contact ) == false )
+    if( serializer::save<true>( os, e.contacts ) == false )
         return false;
 
     return true;

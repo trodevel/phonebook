@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6612 $ $Date:: 2017-04-12 #$ $Author: serge $
+// $Revision: 6630 $ $Date:: 2017-04-13 #$ $Author: serge $
 
 #ifndef LIB_PHONEBOOK_SERIALIZER_H
 #define LIB_PHONEBOOK_SERIALIZER_H
@@ -32,10 +32,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 namespace serializer
 {
-phonebook::Contact** load( std::istream & is, phonebook::Contact** e );
+//phonebook::ContactFlat** load( std::istream & is, phonebook::ContactFlat** e );
+phonebook::ContactFlat* load( std::istream & is, phonebook::ContactFlat* e );
 phonebook::ContactPhone* load( std::istream & is, phonebook::ContactPhone* e );
 bool save( std::ostream & os, const phonebook::ContactPhone & e );
-bool save( std::ostream & os, const phonebook::Contact * e );
+bool save( std::ostream & os, const phonebook::ContactFlat & e );
 }
 
 #include "serializer/serializer.h"   // serializer::
@@ -57,6 +58,9 @@ public:
     static Contact* load( std::istream & is, Contact* e );
     static bool save( std::ostream & os, const Contact & e );
 
+    static ContactFlat* load( std::istream & is, ContactFlat* e );
+    static bool save( std::ostream & os, const ContactFlat & e );
+
     static Status* load( std::istream & is, Status* e );
     static bool save( std::ostream & os, const Status & e );
 
@@ -65,6 +69,7 @@ private:
     static Date* load_1( std::istream & is, Date* e );
     static ContactPhone* load_1( std::istream & is, ContactPhone* e );
     static Contact* load_1( std::istream & is, Contact* e );
+    static ContactFlat* load_1( std::istream & is, ContactFlat* e );
     static Status* load_1( std::istream & is, Status* e );
 };
 

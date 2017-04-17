@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6615 $ $Date:: 2017-04-12 #$ $Author: serge $
+// $Revision: 6644 $ $Date:: 2017-04-13 #$ $Author: serge $
 
 #include "phonebook.h"          // self
 
@@ -81,7 +81,6 @@ bool Phonebook::add_contact_with_id(
     contact->first_name = first_name;
     contact->birthday   = birthday;
     contact->notice     = notice;
-    contact->id         = id;
 
     auto b = map_id_to_contact_.insert( std::make_pair( id, contact ) ).second;
 
@@ -217,21 +216,41 @@ bool Phonebook::add_phone(
 
     *id = get_next_phone_id();
 
+    return add_phone_with_id( error_msg, *id, contact_id, type, phone );
+}
+
+bool Phonebook::add_phone_with_id(
+        std::string             * error_msg,
+        uint32_t                id,
+        uint32_t                contact_id,
+        ContactPhone::type_e    type,
+        const std::string       & phone )
+{
+    dummy_log_debug( log_id_, "add_phone_with_id: contact id %u, phone id %u, %s, %s", contact_id, id, StrHelper::to_string( type ).c_str(), phone.c_str() );
+
+    auto * contact = find_contact( contact_id );
+
+    if( contact == nullptr )
+    {
+        dummy_log_error( log_id_, "add_phone_with_id: contact id %u not found", contact_id );
+        * error_msg = "contact id " + std::to_string( contact_id ) + " not found";
+        return false;
+    }
+
     ContactPhone contact_phone;
 
-    contact_phone.id           = *id;
     contact_phone.type         = type;
     contact_phone.phone_number = phone;
 
-    auto b = contact->map_id_to_phone.insert( std::make_pair( *id, contact_phone ) ).second;
+    auto b = contact->map_id_to_phone.insert( std::make_pair( id, contact_phone ) ).second;
 
     ASSERT( b );
 
-    b = map_phone_id_to_contact_id_.insert( std::make_pair( *id, contact_id ) ).second;
+    b = map_phone_id_to_contact_id_.insert( std::make_pair( id, contact_id ) ).second;
 
     ASSERT( b );
 
-    dummy_log_debug( log_id_, "add phone: contact id %u, phone id %u", contact_id, *id);
+    dummy_log_debug( log_id_, "add_phone_with_id: contact id %u, phone id %u", contact_id, id);
 
     return true;
 }
@@ -387,26 +406,32 @@ uint32_t Phonebook::get_next_phone_id()
     return ++last_phone_id_;
 }
 
-Status Phonebook::get_status() const
+const Status * Phonebook::get_status() const
 {
-    Status res;
+    Status * res = new Status;
 
-    res.last_contact_id     = last_contact_id_;
-    res.last_phone_id       = last_phone_id_;
-    res.map_id_to_contact   = map_id_to_contact_;
+    res->last_contact_id     = last_contact_id_;
+    res->last_phone_id       = last_phone_id_;
+
+    for( auto c : map_id_to_contact_ )
+    {
+        auto user_id   = find_user_id_by_contact_id( c.first );
+
+        res->contacts.emplace_back( c.first, user_id, c.second );
+    }
 
     return res;
 }
 
 void Phonebook::init( const Status & s )
 {
-    dummy_log_debug( log_id_, "init from status: %u %u, size %u", s.last_contact_id, s.last_phone_id, s.map_id_to_contact.size() );
+    dummy_log_debug( log_id_, "init: last contact %u last phone %u, size %u", s.last_contact_id, s.last_phone_id, s.contacts.size() );
 
     clear();
 
-    for( auto c : s.map_id_to_contact )
+    for( auto & c : s.contacts )
     {
-        import( c.second );
+        import( c );
     }
 }
 
@@ -423,9 +448,46 @@ void Phonebook::clear()
     map_phone_id_to_contact_id_.clear();
 }
 
-void Phonebook::import( const Contact * c )
+void Phonebook::import( const ContactFlat & c )
 {
+    std::string error_msg;
 
+    auto b = add_contact_with_id( & error_msg, c.id, c.user_id, c.contact->gender, c.contact->name, c.contact->first_name, c.contact->birthday, c.contact->notice );
+
+    if( b  )
+    {
+        dummy_log_debug( log_id_, "imported contact id %u", c.id );
+
+        for( auto & p : c.contact->map_id_to_phone )
+        {
+            import( c.id, p.first, p.second );
+        }
+    }
+    else
+    {
+        dummy_log_error( log_id_, "cannot import contact id %u: %s", c.id, error_msg.c_str() );
+    }
+}
+
+void Phonebook::import( uint32_t contact_id, uint32_t phone_id, const ContactPhone & c )
+{
+    std::string error_msg;
+
+    auto b = add_phone_with_id( & error_msg, phone_id, contact_id, c.type, c.phone_number );
+
+    if( b  )
+    {
+        dummy_log_debug( log_id_, "imported phone id %u (contact id %u)", phone_id, contact_id );
+    }
+    else
+    {
+        dummy_log_error( log_id_, "cannot import phone id %u (contact id %u): %s", phone_id, contact_id, error_msg.c_str() );
+    }
+}
+
+uint32_t Phonebook::get_log_id() const
+{
+    return log_id_;
 }
 
 } // namespace phonebook

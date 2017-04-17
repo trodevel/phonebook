@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6560 $ $Date:: 2017-04-10 #$ $Author: serge $
+// $Revision: 6644 $ $Date:: 2017-04-13 #$ $Author: serge $
 
 #ifndef LIB_PHONEBOOK_CONTACT_H
 #define LIB_PHONEBOOK_CONTACT_H
@@ -40,7 +40,6 @@ struct ContactPhone
         MOBILE      = 2,
     };
 
-    uint32_t        id;
     type_e          type;
     std::string     phone_number;
 };
@@ -61,7 +60,6 @@ struct Date
 
 struct Contact
 {
-    uint32_t                id;
     gender_e                gender;
     std::string             name;
     std::string             first_name;

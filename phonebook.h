@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6615 $ $Date:: 2017-04-12 #$ $Author: serge $
+// $Revision: 6635 $ $Date:: 2017-04-13 #$ $Author: serge $
 
 #ifndef LIB_PHONEBOOK_PHONEBOOK_H
 #define LIB_PHONEBOOK_PHONEBOOK_H
@@ -40,6 +40,9 @@ public:
     Phonebook();
 
     bool init( uint32_t log_id );
+
+    const Status    * get_status() const;
+    void            init( const Status & status );
 
     bool add_contact(
             uint32_t            * id,
@@ -90,6 +93,8 @@ public:
     uint32_t find_user_id_by_phone_id( uint32_t id ) const;
     uint32_t find_user_id_by_contact_id( uint32_t id ) const;
 
+    uint32_t        get_log_id() const;
+
 private:
 
     typedef std::map<uint32_t,Contact*>  MapIdToContact;
@@ -110,16 +115,22 @@ private:
             const Date          & birthday,
             const std::string   & notice );
 
+    bool add_phone_with_id(
+            std::string             * error_msg,
+            uint32_t                id,
+            uint32_t                contact_id,
+            ContactPhone::type_e    type,
+            const std::string       & phone );
+
     Contact * find_contact_by_phone_id( uint32_t id );
     const Contact * find_contact_by_phone_id( uint32_t id ) const;
 
     uint32_t    get_next_contact_id();
     uint32_t    get_next_phone_id();
 
-    Status      get_status() const;
-    void        init( const Status & status );
     void        clear();
-    void        import( const Contact * c );
+    void        import( const ContactFlat & c );
+    void        import( uint32_t contact_id, uint32_t phone_id, const ContactPhone & c );
 
 private:
 

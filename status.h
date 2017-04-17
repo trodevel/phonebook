@@ -19,26 +19,46 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6610 $ $Date:: 2017-04-12 #$ $Author: serge $
+// $Revision: 6627 $ $Date:: 2017-04-13 #$ $Author: serge $
 
 #ifndef LIB_PHONEBOOK_STATUS_H
 #define LIB_PHONEBOOK_STATUS_H
 
 #include "contact.h"        // Contact
 
-#include <map>              // std::map
+#include <vector>           // std::vector
 
 namespace phonebook
 {
 
+struct ContactFlat
+{
+    ContactFlat():
+        id( 0 ),
+        user_id( 0 ),
+        contact( nullptr )
+    {
+    }
+
+    ContactFlat( uint32_t id, uint32_t user_id, const Contact * contact ):
+        id( id ),
+        user_id( user_id ),
+        contact( contact )
+    {
+    }
+
+    uint32_t            id;
+    uint32_t            user_id;
+    const Contact       * contact;
+};
+
 struct Status
 {
-    typedef std::map<uint32_t,Contact*>  MapIdToContact;
+    typedef std::vector<ContactFlat>  VectorContactFlat;
 
-    uint32_t        last_contact_id;
-    uint32_t        last_phone_id;
-
-    MapIdToContact  map_id_to_contact;      // map: contact id --> Contact*
+    uint32_t            last_contact_id;
+    uint32_t            last_phone_id;
+    VectorContactFlat   contacts;
 };
 
 } // namespace phonebook

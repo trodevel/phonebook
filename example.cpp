@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6603 $ $Date:: 2017-04-12 #$ $Author: serge $
+// $Revision: 6649 $ $Date:: 2017-04-13 #$ $Author: serge $
 
 #include <iostream>                         // std::cout
 
@@ -28,6 +28,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include "phonebook.h"
 #include "str_helper.h"                     // StrHelper
+#include "saveload.h"                       // save()
 
 void test_01( uint32_t log_id )
 {
@@ -393,7 +394,6 @@ void test_10( uint32_t log_id )
     }
 }
 
-
 void test_11( uint32_t log_id )
 {
     std::cout << "test 11" << "\n";
@@ -443,6 +443,56 @@ void test_11( uint32_t log_id )
     }
 }
 
+void init_phonebook( phonebook::Phonebook * pb, uint32_t log_id )
+{
+    std::cout << "init_phonebook" << "\n";
+
+    pb->init( log_id );
+
+    uint32_t    id;
+    std::string error_msg;
+
+    phonebook::Date date    = { 1970, 01, 01 };
+
+    pb->add_contact( & id, & error_msg, 1, phonebook::gender_e::MALE, "Doe", "John", date, "test contact" );
+
+    uint32_t phone_id;
+
+    pb->add_phone( & phone_id, & error_msg, id, phonebook::ContactPhone::type_e::LANDLINE, "+491234567890" );
+
+    pb->add_phone( & phone_id, & error_msg, id, phonebook::ContactPhone::type_e::MOBILE, "+498976543210" );
+
+    pb->add_contact( & id, & error_msg, 1, phonebook::gender_e::MALE, "王", "张", date, "Chinese name" );
+
+    pb->add_contact( & id, & error_msg, 1, phonebook::gender_e::MALE, "Иванов", "Иван", date, "Russian name" );
+
+    pb->add_contact( & id, & error_msg, 1, phonebook::gender_e::MALE, "Markus", "Müller", date, "German name" );
+}
+
+void test_12( uint32_t log_id )
+{
+    std::cout << "test 12" << "\n";
+
+    phonebook::Phonebook pb;
+
+    init_phonebook( & pb, log_id );
+
+    std::string error_msg;
+
+    phonebook::save( & error_msg, pb, "phonebook.dat" );
+}
+
+void test_13( uint32_t log_id )
+{
+    std::cout << "test 13" << "\n";
+
+    phonebook::Phonebook pb;
+
+    std::string error_msg;
+
+    phonebook::load( & pb, & error_msg, "example.dat" );
+}
+
 int main()
 {
     dummy_logger::set_log_level( log_levels_log4j::DEBUG );
@@ -460,6 +510,8 @@ int main()
     test_09( log_id );
     test_10( log_id );
     test_11( log_id );
+    test_12( log_id );
+    test_13( log_id );
 
     std::cout << "exit" << std::endl;
 

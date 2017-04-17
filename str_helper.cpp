@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6599 $ $Date:: 2017-04-12 #$ $Author: serge $
+// $Revision: 6646 $ $Date:: 2017-04-13 #$ $Author: serge $
 
 #include "str_helper.h"             // self
 
@@ -87,7 +87,7 @@ const std::string StrHelper::to_string( const Contact & l )
 {
     std::ostringstream s;
 
-    s << l.id << " " << to_string( l.gender ) << " " << l.name << " " << l.first_name << " " << to_string( l.birthday ) << " {"
+    s << to_string( l.gender ) << " " << l.name << " " << l.first_name << " " << to_string( l.birthday ) << " {"
             << l.map_id_to_phone.size() << ": ";
 
     for( auto & c : l.map_id_to_phone )
@@ -104,7 +104,7 @@ const std::string StrHelper::to_string( const ContactPhone & l )
 {
     std::ostringstream s;
 
-    s << l.id << " " << to_string( l.type ) << " " << l.phone_number;
+    s << to_string( l.type ) << " " << l.phone_number;
 
     return s.str();
 }
