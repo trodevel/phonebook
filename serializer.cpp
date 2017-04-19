@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6645 $ $Date:: 2017-04-13 #$ $Author: serge $
+// $Revision: 6651 $ $Date:: 2017-04-18 #$ $Author: serge $
 
 #include "serializer.h"     // self
 
@@ -132,7 +132,7 @@ bool Serializer::save( std::ostream & os, const ContactPhone & e )
     os << VERSION << " ";
 
     os << static_cast<unsigned>( e.type ) << " "
-            << utils::nonascii_hex_codec::encode( e.phone_number );
+            << utils::nonascii_hex_codec::encode( e.phone_number ) << " ";
 
     if( os.fail() )
         return false;

@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6649 $ $Date:: 2017-04-13 #$ $Author: serge $
+// $Revision: 6650 $ $Date:: 2017-04-18 #$ $Author: serge $
 
 #include <iostream>                         // std::cout
 
@@ -487,6 +487,8 @@ void test_13( uint32_t log_id )
     std::cout << "test 13" << "\n";
 
     phonebook::Phonebook pb;
+
+    pb.init( log_id );
 
     std::string error_msg;
 

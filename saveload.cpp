@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6648 $ $Date:: 2017-04-13 #$ $Author: serge $
+// $Revision: 6668 $ $Date:: 2017-04-18 #$ $Author: serge $
 
 #include "saveload.h"  // self
 
@@ -106,9 +106,9 @@ bool load( Phonebook * pb, std::string * error_msg, const std::string & filename
         return false;
     }
 
-    dummy_log_info( log_id, "load_status: loaded %d jobs", status.contacts.size() );
+    dummy_log_info( log_id, "load: loaded %d contact(s)", status.contacts.size() );
 
-    pb->init( status );
+    pb->init_status( status );
 
     return true;
 }

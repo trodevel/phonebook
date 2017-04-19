@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6635 $ $Date:: 2017-04-13 #$ $Author: serge $
+// $Revision: 6668 $ $Date:: 2017-04-18 #$ $Author: serge $
 
 #ifndef LIB_PHONEBOOK_PHONEBOOK_H
 #define LIB_PHONEBOOK_PHONEBOOK_H
@@ -42,7 +42,7 @@ public:
     bool init( uint32_t log_id );
 
     const Status    * get_status() const;
-    void            init( const Status & status );
+    void            init_status( const Status & status );
 
     bool add_contact(
             uint32_t            * id,
