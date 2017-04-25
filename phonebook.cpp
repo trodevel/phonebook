@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6668 $ $Date:: 2017-04-18 #$ $Author: serge $
+// $Revision: 6728 $ $Date:: 2017-04-24 #$ $Author: serge $
 
 #include "phonebook.h"          // self
 
@@ -428,6 +428,9 @@ void Phonebook::init_status( const Status & s )
     dummy_log_debug( log_id_, "init: last contact %u last phone %u, size %u", s.last_contact_id, s.last_phone_id, s.contacts.size() );
 
     clear();
+
+    last_contact_id_    = s.last_contact_id;
+    last_phone_id_      = s.last_phone_id;
 
     for( auto & c : s.contacts )
     {
