@@ -19,13 +19,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6668 $ $Date:: 2017-04-18 #$ $Author: serge $
+// $Revision: 6765 $ $Date:: 2017-04-26 #$ $Author: serge $
 
 #include "saveload.h"  // self
 
 #include <fstream>      // std::ofstream
 #include <memory>       // std::unique_ptr
 
+#include "utils/mutex_helper.h"     // MUTEX_SCOPE_LOCK
 #include "utils/dummy_logger.h"     // dummy_log_debug
 #include "serializer.h" // Serializer
 
@@ -35,6 +36,10 @@ namespace phonebook
 bool save_intern( std::string * error_msg, const Phonebook & pb, const std::string & filename )
 {
     std::ofstream os( filename );
+
+    auto & mutex = pb.get_mutex();
+
+    MUTEX_SCOPE_LOCK( mutex );
 
     std::unique_ptr<const Status> status( pb.get_status() );
 

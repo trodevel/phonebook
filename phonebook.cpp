@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6756 $ $Date:: 2017-04-25 #$ $Author: serge $
+// $Revision: 6768 $ $Date:: 2017-04-26 #$ $Author: serge $
 
 #include "phonebook.h"          // self
 
@@ -160,14 +160,15 @@ bool Phonebook::delete_contact(
 
     dummy_log_debug( log_id_, "delete contact: contact id %u", id );
 
-    auto * contact = find_contact( id );
-
-    if( contact == nullptr )
+    auto it_contact = map_id_to_contact_.find( id );
+    if( it_contact == map_id_to_contact_.end() )
     {
         dummy_log_error( log_id_, "delete contact: contact id %u not found", id );
         * error_msg = "contact id " + std::to_string( id ) + " not found";
         return false;
     }
+
+    auto * contact = it_contact->second;
 
     // delete phone ids
     auto & phone_ids = contact->map_id_to_phone;
@@ -187,6 +188,7 @@ bool Phonebook::delete_contact(
     dummy_log_debug( log_id_, "delete contact: contact id %u, user id %u", id, user_id );
 
     delete contact;
+    map_id_to_contact_.erase( it_contact );
 
     {
         auto it = map_user_id_to_contact_ids_.find( user_id );
@@ -432,8 +434,6 @@ uint32_t Phonebook::get_next_phone_id()
 const Status * Phonebook::get_status() const
 {
     Status * res = new Status;
-
-    MUTEX_SCOPE_LOCK( mutex_ );
 
     res->last_contact_id     = last_contact_id_;
     res->last_phone_id       = last_phone_id_;
