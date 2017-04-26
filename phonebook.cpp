@@ -19,12 +19,13 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6728 $ $Date:: 2017-04-24 #$ $Author: serge $
+// $Revision: 6756 $ $Date:: 2017-04-25 #$ $Author: serge $
 
 #include "phonebook.h"          // self
 
 #include "utils/dummy_logger.h"     // dummy_log_debug
 #include "utils/assert.h"           // ASSERT
+#include "utils/mutex_helper.h"     // MUTEX_SCOPE_LOCK
 
 #include "str_helper.h"             // StrHelper
 
@@ -55,6 +56,8 @@ bool Phonebook::add_contact(
         const Date          & birthday,
         const std::string   & notice )
 {
+    MUTEX_SCOPE_LOCK( mutex_ );
+
     dummy_log_debug( log_id_, "add contact: user id %u, %s, %s, %s, %s", user_id, StrHelper::to_string( gender ).c_str(), name.c_str(), first_name.c_str(), notice.c_str() );
 
     *id = get_next_contact_id();
@@ -127,6 +130,8 @@ bool Phonebook::modify_contact(
         const Date          & birthday,
         const std::string   & notice )
 {
+    MUTEX_SCOPE_LOCK( mutex_ );
+
     dummy_log_debug( log_id_, "modify contact: contact id %u, %s, %s, %s, %s", id, StrHelper::to_string( gender ).c_str(), name.c_str(), first_name.c_str(), notice.c_str() );
 
     auto * contact = find_contact( id );
@@ -151,6 +156,8 @@ bool Phonebook::delete_contact(
         std::string         * error_msg,
         uint32_t            id )
 {
+    MUTEX_SCOPE_LOCK( mutex_ );
+
     dummy_log_debug( log_id_, "delete contact: contact id %u", id );
 
     auto * contact = find_contact( id );
@@ -203,6 +210,8 @@ bool Phonebook::add_phone(
         ContactPhone::type_e    type,
         const std::string       & phone )
 {
+    MUTEX_SCOPE_LOCK( mutex_ );
+
     dummy_log_debug( log_id_, "add phone: contact id %u, %s, %s", contact_id, StrHelper::to_string( type ).c_str(), phone.c_str() );
 
     auto * contact = find_contact( contact_id );
@@ -261,6 +270,8 @@ bool Phonebook::modify_phone(
         ContactPhone::type_e    type,
         const std::string       & phone )
 {
+    MUTEX_SCOPE_LOCK( mutex_ );
+
     dummy_log_debug( log_id_, "modify phone: phone id %u, %s, %s", id, StrHelper::to_string( type ).c_str(), phone.c_str() );
 
     auto * contact = find_contact_by_phone_id( id );
@@ -288,6 +299,8 @@ bool Phonebook::delete_phone(
         std::string         * error_msg,
         uint32_t            id )
 {
+    MUTEX_SCOPE_LOCK( mutex_ );
+
     dummy_log_debug( log_id_, "delete phone: phone id %u", id );
 
     auto * contact = find_contact_by_phone_id( id );
@@ -308,6 +321,16 @@ bool Phonebook::delete_phone(
     ASSERT( n > 0 );
 
     return true;
+}
+
+void Phonebook::lock() const
+{
+    mutex_.lock();
+}
+
+void Phonebook::unlock() const
+{
+    mutex_.unlock();
 }
 
 std::vector<const Contact *> Phonebook::find_contacts( const std::string & regex, uint32_t page_size, uint32_t page_num )
@@ -410,6 +433,8 @@ const Status * Phonebook::get_status() const
 {
     Status * res = new Status;
 
+    MUTEX_SCOPE_LOCK( mutex_ );
+
     res->last_contact_id     = last_contact_id_;
     res->last_phone_id       = last_phone_id_;
 
@@ -425,6 +450,8 @@ const Status * Phonebook::get_status() const
 
 void Phonebook::init_status( const Status & s )
 {
+    MUTEX_SCOPE_LOCK( mutex_ );
+
     dummy_log_debug( log_id_, "init: last contact %u last phone %u, size %u", s.last_contact_id, s.last_phone_id, s.contacts.size() );
 
     clear();
@@ -491,6 +518,11 @@ void Phonebook::import( uint32_t contact_id, uint32_t phone_id, const ContactPho
 uint32_t Phonebook::get_log_id() const
 {
     return log_id_;
+}
+
+std::mutex      & Phonebook::get_mutex() const
+{
+    return mutex_;
 }
 
 } // namespace phonebook

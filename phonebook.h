@@ -19,13 +19,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6668 $ $Date:: 2017-04-18 #$ $Author: serge $
+// $Revision: 6756 $ $Date:: 2017-04-25 #$ $Author: serge $
 
 #ifndef LIB_PHONEBOOK_PHONEBOOK_H
 #define LIB_PHONEBOOK_PHONEBOOK_H
 
 #include <set>              // std::set
 #include <vector>           // std::vector
+#include <mutex>            // std::mutex
 
 #include "contact.h"        // Contact
 #include "status.h"         // Status
@@ -84,6 +85,9 @@ public:
             std::string         * error_msg,
             uint32_t            id );
 
+    void lock() const;
+    void unlock() const;
+
     std::vector<const Contact *> find_contacts( const std::string & regex, uint32_t page_size, uint32_t page_num );
 
     Contact * find_contact( uint32_t id );
@@ -94,6 +98,7 @@ public:
     uint32_t find_user_id_by_contact_id( uint32_t id ) const;
 
     uint32_t        get_log_id() const;
+    std::mutex      & get_mutex() const;
 
 private:
 
@@ -133,6 +138,7 @@ private:
     void        import( uint32_t contact_id, uint32_t phone_id, const ContactPhone & c );
 
 private:
+    mutable std::mutex          mutex_;
 
     uint32_t        log_id_;
 
