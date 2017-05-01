@@ -19,15 +19,16 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6765 $ $Date:: 2017-04-26 #$ $Author: serge $
+// $Revision: 6791 $ $Date:: 2017-04-28 #$ $Author: serge $
 
 #include "saveload.h"  // self
 
 #include <fstream>      // std::ofstream
 #include <memory>       // std::unique_ptr
 
-#include "utils/mutex_helper.h"     // MUTEX_SCOPE_LOCK
-#include "utils/dummy_logger.h"     // dummy_log_debug
+#include "utils/mutex_helper.h"         // MUTEX_SCOPE_LOCK
+#include "utils/dummy_logger.h"         // dummy_log_debug
+#include "utils/rename_and_backup.h"    // utils::rename_and_backup
 #include "serializer.h" // Serializer
 
 namespace phonebook
@@ -63,20 +64,13 @@ bool save_intern( std::string * error_msg, const Phonebook & pb, const std::stri
 bool save( std::string * error_msg, const Phonebook & pb, const std::string & filename )
 {
     auto temp_name  = filename + ".tmp";
-    auto old_name   = filename + ".old";
 
     auto b = save_intern( error_msg, pb, temp_name );
 
     if( b == false )
         return false;
 
-    std::remove( old_name.c_str() );
-
-    std::rename( filename.c_str(), old_name.c_str() );
-
-    std::remove( filename.c_str() );
-
-    std::rename( temp_name.c_str(), filename.c_str() );
+    utils::rename_and_backup( temp_name, filename );
 
     return true;
 }
