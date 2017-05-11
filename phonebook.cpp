@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6768 $ $Date:: 2017-04-26 #$ $Author: serge $
+// $Revision: 6930 $ $Date:: 2017-05-11 #$ $Author: serge $
 
 #include "phonebook.h"          // self
 
@@ -361,14 +361,34 @@ const ContactPhone * Phonebook::find_phone( uint32_t id ) const
     return & it->second;
 }
 
-uint32_t Phonebook::find_user_id_by_phone_id( uint32_t id ) const
+uint32_t Phonebook::find_contact_id_by_phone_id( uint32_t id ) const
 {
     auto it = map_phone_id_to_contact_id_.find( id );
 
     if( it == map_phone_id_to_contact_id_.end() )
         return 0;
 
-    return find_user_id_by_contact_id( it->second );
+    return it->second;
+}
+
+uint32_t Phonebook::find_contact_id_by_phone_id( uint32_t id )
+{
+    auto it = map_phone_id_to_contact_id_.find( id );
+
+    if( it == map_phone_id_to_contact_id_.end() )
+        return 0;
+
+    return it->second;
+}
+
+uint32_t Phonebook::find_user_id_by_phone_id( uint32_t id ) const
+{
+    auto contact_id = find_contact_id_by_phone_id( id );
+
+    if( contact_id == 0 )
+        return 0;
+
+    return find_user_id_by_contact_id( contact_id );
 }
 
 uint32_t Phonebook::find_user_id_by_contact_id( uint32_t id ) const
@@ -403,22 +423,22 @@ const Contact * Phonebook::find_contact( uint32_t id ) const
 
 Contact * Phonebook::find_contact_by_phone_id( uint32_t id )
 {
-    auto it = map_phone_id_to_contact_id_.find( id );
+    auto contact_id = find_contact_id_by_phone_id( id );
 
-    if( it == map_phone_id_to_contact_id_.end() )
+    if( contact_id == 0 )
         return nullptr;
 
-    return find_contact( it->second );
+    return find_contact( contact_id );
 }
 
 const Contact * Phonebook::find_contact_by_phone_id( uint32_t id ) const
 {
-    auto it = map_phone_id_to_contact_id_.find( id );
+    auto contact_id = find_contact_id_by_phone_id( id );
 
-    if( it == map_phone_id_to_contact_id_.end() )
+    if( contact_id == 0 )
         return nullptr;
 
-    return find_contact( it->second );
+    return find_contact( contact_id );
 }
 
 uint32_t Phonebook::get_next_contact_id()
