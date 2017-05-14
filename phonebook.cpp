@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6930 $ $Date:: 2017-05-11 #$ $Author: serge $
+// $Revision: 6946 $ $Date:: 2017-05-12 #$ $Author: serge $
 
 #include "phonebook.h"          // self
 
