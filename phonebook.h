@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6946 $ $Date:: 2017-05-12 #$ $Author: serge $
+// $Revision: 7283 $ $Date:: 2017-07-20 #$ $Author: serge $
 
 #ifndef LIB_PHONEBOOK_PHONEBOOK_H
 #define LIB_PHONEBOOK_PHONEBOOK_H
@@ -46,9 +46,9 @@ public:
     void            init_status( const Status & status );
 
     bool add_contact(
-            uint32_t            * id,
+            contact_id_t        * id,
             std::string         * error_msg,
-            uint32_t            user_id,
+            user_id_t           user_id,
             gender_e            gender,
             const std::string   & name,
             const std::string   & first_name,
@@ -57,7 +57,7 @@ public:
 
     bool modify_contact(
             std::string         * error_msg,
-            uint32_t            id,
+            contact_id_t        id,
             gender_e            gender,
             const std::string   & name,
             const std::string   & first_name,
@@ -66,58 +66,59 @@ public:
 
     bool delete_contact(
             std::string         * error_msg,
-            uint32_t            id );
+            contact_id_t        id );
 
     bool add_phone(
-            uint32_t                * id,
+            contact_phone_id_t      * id,
             std::string             * error_msg,
-            uint32_t                contact_id,
+            contact_id_t            contact_id,
             ContactPhone::type_e    type,
             const std::string       & phone );
 
     bool modify_phone(
             std::string             * error_msg,
-            uint32_t                id,
+            contact_phone_id_t      id,
             ContactPhone::type_e    type,
             const std::string       & phone );
 
     bool delete_phone(
             std::string         * error_msg,
-            uint32_t            id );
+            contact_phone_id_t  id );
 
     void lock() const;
     void unlock() const;
 
     std::vector<const Contact *> find_contacts( const std::string & regex, uint32_t page_size, uint32_t page_num );
 
-    Contact * find_contact( uint32_t id );
-    const Contact * find_contact( uint32_t id ) const;
-    const ContactPhone * find_phone( uint32_t id ) const;
+    Contact * find_contact( contact_id_t id );
+    const Contact * find_contact( contact_id_t id ) const;
+    const ContactPhone * find_phone( contact_phone_id_t id ) const;
 
-    Contact * find_contact_by_phone_id( uint32_t id );
-    const Contact * find_contact_by_phone_id( uint32_t id ) const;
+    Contact * find_contact_by_phone_id( contact_phone_id_t id );
+    const Contact * find_contact_by_phone_id( contact_phone_id_t id ) const;
 
-    uint32_t find_contact_id_by_phone_id( uint32_t id ) const;
-    uint32_t find_user_id_by_phone_id( uint32_t id ) const;
-    uint32_t find_user_id_by_contact_id( uint32_t id ) const;
+    contact_id_t find_contact_id_by_phone_id( contact_phone_id_t id ) const;
+    user_id_t find_user_id_by_phone_id( contact_phone_id_t id ) const;
+    user_id_t find_user_id_by_contact_id( contact_id_t id ) const;
 
     uint32_t        get_log_id() const;
     std::mutex      & get_mutex() const;
 
 private:
 
-    typedef std::map<uint32_t,Contact*>  MapIdToContact;
+    typedef std::map<contact_id_t,Contact*>  MapIdToContact;
 
-    typedef std::map<uint32_t,uint32_t>  MapIdToId;
+    typedef std::map<contact_id_t,user_id_t>            MapContactIdToUserId;
+    typedef std::map<contact_phone_id_t,contact_id_t>   MapPhoneIdToContactId;
 
-    typedef std::map<uint32_t,std::set<uint32_t>>  MapIdToIdSet;
+    typedef std::map<user_id_t,std::set<contact_id_t>>  MapUserIdToContactIdSet;
 
 private:
 
     bool add_contact_with_id(
             std::string         * error_msg,
-            uint32_t            id,
-            uint32_t            user_id,
+            contact_id_t        id,
+            user_id_t           user_id,
             gender_e            gender,
             const std::string   & name,
             const std::string   & first_name,
@@ -126,33 +127,33 @@ private:
 
     bool add_phone_with_id(
             std::string             * error_msg,
-            uint32_t                id,
-            uint32_t                contact_id,
+            contact_phone_id_t      id,
+            contact_id_t            contact_id,
             ContactPhone::type_e    type,
             const std::string       & phone );
 
-    uint32_t find_contact_id_by_phone_id( uint32_t id );
+    contact_id_t find_contact_id_by_phone_id( contact_phone_id_t id );
 
-    uint32_t    get_next_contact_id();
-    uint32_t    get_next_phone_id();
+    contact_id_t        get_next_contact_id();
+    contact_phone_id_t  get_next_phone_id();
 
     void        clear();
     void        import( const ContactFlat & c );
-    void        import( uint32_t contact_id, uint32_t phone_id, const ContactPhone & c );
+    void        import( contact_id_t contact_id, contact_phone_id_t phone_id, const ContactPhone & c );
 
 private:
     mutable std::mutex          mutex_;
 
-    uint32_t        log_id_;
+    uint32_t                log_id_;
 
-    uint32_t        last_contact_id_;
-    uint32_t        last_phone_id_;
+    contact_id_t            last_contact_id_;
+    contact_phone_id_t      last_phone_id_;
 
-    MapIdToContact  map_id_to_contact_;             // map: contact id --> Contact*
+    MapIdToContact          map_id_to_contact_;             // map: contact id --> Contact*
 
-    MapIdToIdSet    map_user_id_to_contact_ids_;    // map: user id --> list of contact ids
-    MapIdToId       map_contact_id_to_user_id_;     // map: contact id --> user id
-    MapIdToId       map_phone_id_to_contact_id_;    // map: phone id --> contact id
+    MapUserIdToContactIdSet map_user_id_to_contact_ids_;    // map: user id --> list of contact ids
+    MapContactIdToUserId    map_contact_id_to_user_id_;     // map: contact id --> user id
+    MapPhoneIdToContactId   map_phone_id_to_contact_id_;    // map: phone id --> contact id
 };
 
 } // namespace phonebook

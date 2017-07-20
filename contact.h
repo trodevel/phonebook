@@ -19,14 +19,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6644 $ $Date:: 2017-04-13 #$ $Author: serge $
+// $Revision: 7281 $ $Date:: 2017-07-20 #$ $Author: serge $
 
 #ifndef LIB_PHONEBOOK_CONTACT_H
 #define LIB_PHONEBOOK_CONTACT_H
 
-#include <cstdint>              // uint32_t
 #include <string>               // std::string
 #include <map>                  // std::map
+
+#include "types.h"              // contact_phone_id_t
 
 namespace phonebook
 {
@@ -66,7 +67,7 @@ struct Contact
     Date                    birthday;
     std::string             notice;
 
-    std::map<uint32_t,ContactPhone> map_id_to_phone;
+    std::map<contact_phone_id_t,ContactPhone> map_id_to_phone;
 };
 
 } // namespace phonebook

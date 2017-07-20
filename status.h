@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6627 $ $Date:: 2017-04-13 #$ $Author: serge $
+// $Revision: 7284 $ $Date:: 2017-07-20 #$ $Author: serge $
 
 #ifndef LIB_PHONEBOOK_STATUS_H
 #define LIB_PHONEBOOK_STATUS_H
@@ -40,15 +40,15 @@ struct ContactFlat
     {
     }
 
-    ContactFlat( uint32_t id, uint32_t user_id, const Contact * contact ):
+    ContactFlat( contact_id_t id, user_id_t user_id, const Contact * contact ):
         id( id ),
         user_id( user_id ),
         contact( contact )
     {
     }
 
-    uint32_t            id;
-    uint32_t            user_id;
+    contact_id_t        id;
+    user_id_t           user_id;
     const Contact       * contact;
 };
 
@@ -56,8 +56,8 @@ struct Status
 {
     typedef std::vector<ContactFlat>  VectorContactFlat;
 
-    uint32_t            last_contact_id;
-    uint32_t            last_phone_id;
+    contact_id_t        last_contact_id;
+    contact_phone_id_t  last_phone_id;
     VectorContactFlat   contacts;
 };
 

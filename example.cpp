@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6650 $ $Date:: 2017-04-18 #$ $Author: serge $
+// $Revision: 7286 $ $Date:: 2017-07-20 #$ $Author: serge $
 
 #include <iostream>                         // std::cout
 
@@ -38,8 +38,8 @@ void test_01( uint32_t log_id )
 
     pb.init( log_id );
 
-    uint32_t    id;
-    std::string error_msg;
+    phonebook::contact_id_t id;
+    std::string             error_msg;
 
     phonebook::Date date    = { 1970, 01, 01 };
 
@@ -63,8 +63,8 @@ void test_02( uint32_t log_id )
 
     pb.init( log_id );
 
-    uint32_t    id;
-    std::string error_msg;
+    phonebook::contact_id_t id;
+    std::string             error_msg;
 
     phonebook::Date date    = { 1970, 01, 01 };
 
@@ -99,8 +99,8 @@ void test_03( uint32_t log_id )
 
     pb.init( log_id );
 
-    uint32_t    id = 777;
-    std::string error_msg;
+    phonebook::contact_id_t id = 777;
+    std::string             error_msg;
 
     phonebook::Date date    = { 1970, 01, 01 };
 
@@ -124,8 +124,8 @@ void test_04( uint32_t log_id )
 
     pb.init( log_id );
 
-    uint32_t    id;
-    std::string error_msg;
+    phonebook::contact_id_t id;
+    std::string             error_msg;
 
     phonebook::Date date    = { 1970, 01, 01 };
 
@@ -160,8 +160,8 @@ void test_05( uint32_t log_id )
 
     pb.init( log_id );
 
-    uint32_t    id = 777;
-    std::string error_msg;
+    phonebook::contact_id_t id = 777;
+    std::string             error_msg;
 
     auto b = pb.delete_contact( & error_msg, id );
 
@@ -183,8 +183,8 @@ void test_06( uint32_t log_id )
 
     pb.init( log_id );
 
-    uint32_t    id;
-    std::string error_msg;
+    phonebook::contact_id_t id;
+    std::string             error_msg;
 
     phonebook::Date date    = { 1970, 01, 01 };
 
@@ -194,7 +194,7 @@ void test_06( uint32_t log_id )
     {
         std::cout << "OK: contact added "<< id << "\n";
 
-        uint32_t phone_id;
+        phonebook::contact_phone_id_t phone_id;
 
         b = pb.add_phone( & phone_id, & error_msg, id, phonebook::ContactPhone::type_e::LANDLINE, "+491234567890" );
 
@@ -221,8 +221,8 @@ void test_07( uint32_t log_id )
 
     pb.init( log_id );
 
-    uint32_t    id;
-    std::string error_msg;
+    phonebook::contact_id_t id;
+    std::string             error_msg;
 
     phonebook::Date date    = { 1970, 01, 01 };
 
@@ -232,7 +232,7 @@ void test_07( uint32_t log_id )
     {
         std::cout << "OK: contact added "<< id << "\n";
 
-        uint32_t phone_id;
+        phonebook::contact_phone_id_t phone_id;
 
         b = pb.add_phone( & phone_id, & error_msg, id, phonebook::ContactPhone::type_e::LANDLINE, "+491234567890" );
 
@@ -270,8 +270,8 @@ void test_08( uint32_t log_id )
 
     pb.init( log_id );
 
-    uint32_t    id;
-    std::string error_msg;
+    phonebook::contact_id_t id;
+    std::string             error_msg;
 
     phonebook::Date date    = { 1970, 01, 01 };
 
@@ -281,7 +281,7 @@ void test_08( uint32_t log_id )
     {
         std::cout << "OK: contact added "<< id << "\n";
 
-        uint32_t phone_id;
+        phonebook::contact_phone_id_t   phone_id;
 
         b = pb.add_phone( & phone_id, & error_msg, id, phonebook::ContactPhone::type_e::LANDLINE, "+491234567890" );
 
@@ -319,8 +319,8 @@ void test_09( uint32_t log_id )
 
     pb.init( log_id );
 
-    uint32_t    id = 999;
-    std::string error_msg;
+    phonebook::contact_phone_id_t   id = 999;
+    std::string                     error_msg;
 
     auto b = pb.delete_phone( & error_msg, id );
 
@@ -342,8 +342,8 @@ void test_10( uint32_t log_id )
 
     pb.init( log_id );
 
-    uint32_t    id;
-    std::string error_msg;
+    phonebook::contact_id_t id;
+    std::string             error_msg;
 
     phonebook::Date date    = { 1970, 01, 01 };
 
@@ -353,7 +353,7 @@ void test_10( uint32_t log_id )
     {
         std::cout << "OK: contact added "<< id << "\n";
 
-        uint32_t phone_id;
+        phonebook::contact_phone_id_t phone_id;
 
         b = pb.add_phone( & phone_id, & error_msg, id, phonebook::ContactPhone::type_e::LANDLINE, "+491234567890" );
 
@@ -402,8 +402,8 @@ void test_11( uint32_t log_id )
 
     pb.init( log_id );
 
-    uint32_t    id;
-    std::string error_msg;
+    phonebook::contact_id_t id;
+    std::string             error_msg;
 
     phonebook::Date date    = { 1970, 01, 01 };
 
@@ -413,7 +413,7 @@ void test_11( uint32_t log_id )
     {
         std::cout << "OK: contact added "<< id << "\n";
 
-        uint32_t phone_id;
+        phonebook::contact_phone_id_t phone_id;
 
         b = pb.add_phone( & phone_id, & error_msg, id, phonebook::ContactPhone::type_e::LANDLINE, "+491234567890" );
 
@@ -449,14 +449,14 @@ void init_phonebook( phonebook::Phonebook * pb, uint32_t log_id )
 
     pb->init( log_id );
 
-    uint32_t    id;
-    std::string error_msg;
+    phonebook::contact_id_t id;
+    std::string             error_msg;
 
     phonebook::Date date    = { 1970, 01, 01 };
 
     pb->add_contact( & id, & error_msg, 1, phonebook::gender_e::MALE, "Doe", "John", date, "test contact" );
 
-    uint32_t phone_id;
+    phonebook::contact_phone_id_t phone_id;
 
     pb->add_phone( & phone_id, & error_msg, id, phonebook::ContactPhone::type_e::LANDLINE, "+491234567890" );
 

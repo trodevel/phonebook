@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6651 $ $Date:: 2017-04-18 #$ $Author: serge $
+// $Revision: 7285 $ $Date:: 2017-07-20 #$ $Author: serge $
 
 #include "serializer.h"     // self
 
@@ -257,8 +257,8 @@ Status* Serializer::load_1( std::istream & is, Status* e )
     if( e == nullptr )
         throw std::invalid_argument( "Serializer::load: Status is null" );
 
-    uint32_t                    last_contact_id;
-    uint32_t                    last_phone_id;
+    contact_id_t                last_contact_id;
+    contact_phone_id_t          last_phone_id;
     Status::VectorContactFlat   contacts;
 
     is >> last_contact_id >> last_phone_id ;
