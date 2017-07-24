@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 7283 $ $Date:: 2017-07-20 #$ $Author: serge $
+// $Revision: 7349 $ $Date:: 2017-07-24 #$ $Author: serge $
 
 #ifndef LIB_PHONEBOOK_PHONEBOOK_H
 #define LIB_PHONEBOOK_PHONEBOOK_H
@@ -94,6 +94,7 @@ public:
     const Contact * find_contact( contact_id_t id ) const;
     const ContactPhone * find_phone( contact_phone_id_t id ) const;
 
+    Contact * find_contact_and_contact_id_by_phone_id( contact_id_t * contact_id, contact_phone_id_t id );
     Contact * find_contact_by_phone_id( contact_phone_id_t id );
     const Contact * find_contact_by_phone_id( contact_phone_id_t id ) const;
 

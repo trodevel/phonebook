@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 7283 $ $Date:: 2017-07-20 #$ $Author: serge $
+// $Revision: 7349 $ $Date:: 2017-07-24 #$ $Author: serge $
 
 #include "phonebook.h"          // self
 
@@ -421,14 +421,21 @@ const Contact * Phonebook::find_contact( contact_id_t id ) const
     return it->second;
 }
 
-Contact * Phonebook::find_contact_by_phone_id( contact_phone_id_t id )
+Contact * Phonebook::find_contact_and_contact_id_by_phone_id( contact_id_t * contact_id, contact_phone_id_t id )
 {
-    auto contact_id = find_contact_id_by_phone_id( id );
+    * contact_id = find_contact_id_by_phone_id( id );
 
-    if( contact_id == 0 )
+    if( * contact_id == 0 )
         return nullptr;
 
-    return find_contact( contact_id );
+    return find_contact( * contact_id );
+}
+
+Contact * Phonebook::find_contact_by_phone_id( contact_phone_id_t id )
+{
+    contact_id_t contact_id;
+
+    return find_contact_and_contact_id_by_phone_id( & contact_id, id );
 }
 
 const Contact * Phonebook::find_contact_by_phone_id( contact_phone_id_t id ) const
