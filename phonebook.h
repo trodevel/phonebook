@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 7349 $ $Date:: 2017-07-24 #$ $Author: serge $
+// $Revision: 7690 $ $Date:: 2017-08-22 #$ $Author: serge $
 
 #ifndef LIB_PHONEBOOK_PHONEBOOK_H
 #define LIB_PHONEBOOK_PHONEBOOK_H
@@ -88,7 +88,9 @@ public:
     void lock() const;
     void unlock() const;
 
-    std::vector<const Contact *> find_contacts( const std::string & regex, uint32_t page_size, uint32_t page_num );
+    std::map<contact_id_t,const Contact *> find_contacts(
+            uint32_t * total_size,
+            user_id_t user_id, const std::string & regex, uint32_t page_size, uint32_t page_num );
 
     Contact * find_contact( contact_id_t id );
     const Contact * find_contact( contact_id_t id ) const;
@@ -141,6 +143,8 @@ private:
     void        clear();
     void        import( const ContactFlat & c );
     void        import( contact_id_t contact_id, contact_phone_id_t phone_id, const ContactPhone & c );
+
+    bool is_match( const Contact & c, const std::string & regex );
 
 private:
     mutable std::mutex          mutex_;

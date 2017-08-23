@@ -19,13 +19,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 7349 $ $Date:: 2017-07-24 #$ $Author: serge $
+// $Revision: 7698 $ $Date:: 2017-08-22 #$ $Author: serge $
 
 #include "phonebook.h"          // self
 
 #include "utils/dummy_logger.h"     // dummy_log_debug
 #include "utils/assert.h"           // ASSERT
 #include "utils/mutex_helper.h"     // MUTEX_SCOPE_LOCK
+#include "utils/regex_match.h"      // utils::regex_match_i()
 
 #include "str_helper.h"             // StrHelper
 
@@ -335,11 +336,53 @@ void Phonebook::unlock() const
     mutex_.unlock();
 }
 
-std::vector<const Contact *> Phonebook::find_contacts( const std::string & regex, uint32_t page_size, uint32_t page_num )
+std::map<contact_id_t,const Contact *> Phonebook::find_contacts(
+        uint32_t * total_size,
+        user_id_t user_id, const std::string & regex, uint32_t page_size, uint32_t page_num )
 {
-    dummy_log_debug( log_id_, "find_contacts: '%s' %u %u", regex.c_str(), page_size, page_num );
+    dummy_log_debug( log_id_, "find_contacts: %u '%s' %u %u", user_id, regex.c_str(), page_size, page_num );
 
-    std::vector<const Contact *> res;
+    std::map<contact_id_t,const Contact *> res;
+
+    * total_size = 0;
+
+    auto offset     = page_size * page_num;
+    auto offset_end = offset + page_size;
+
+    auto it = map_user_id_to_contact_ids_.find( user_id );
+
+    if( it == map_user_id_to_contact_ids_.end() )
+    {
+        dummy_log_info( log_id_, "find_contacts: user id %u not found", user_id );
+
+        return res;
+    }
+
+    auto & contact_ids = it->second;
+
+    unsigned i = 0;
+
+    for( auto c : contact_ids )
+    {
+        auto contact = find_contact( c );
+
+        ASSERT( contact );
+
+        if( is_match( * contact, regex ) )
+        {
+            // return only those elements, which belong to the desired page
+            if( i >= offset && i < offset_end )
+            {
+                res.insert( std::make_pair( c, contact ) );
+            }
+
+            i++;
+        }
+    }
+
+    * total_size  = i;
+
+    dummy_log_debug( log_id_, "find_contacts: user id %u, regex '%s' - found %u records, %u returned", user_id, regex.c_str(), total_size, res.size() );
 
     return res;
 }
@@ -550,6 +593,18 @@ uint32_t Phonebook::get_log_id() const
 std::mutex      & Phonebook::get_mutex() const
 {
     return mutex_;
+}
+
+bool Phonebook::is_match( const Contact & c, const std::string & regex )
+{
+    if( utils::regex_match_i( c.name, regex )
+        || utils::regex_match_i( c.first_name, regex )
+        || utils::regex_match_i( c.notice, regex ) )
+    {
+        return true;
+    }
+
+    return false;
 }
 
 } // namespace phonebook
