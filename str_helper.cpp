@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 6646 $ $Date:: 2017-04-13 #$ $Author: serge $
+// $Revision: 7706 $ $Date:: 2017-08-24 #$ $Author: serge $
 
 #include "str_helper.h"             // self
 
@@ -96,6 +96,8 @@ const std::string StrHelper::to_string( const Contact & l )
     }
 
     s << " }";
+
+    s << " '" << l.notice << "'";
 
     return s.str();
 }

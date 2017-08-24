@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 7698 $ $Date:: 2017-08-22 #$ $Author: serge $
+// $Revision: 7724 $ $Date:: 2017-08-24 #$ $Author: serge $
 
 #include "phonebook.h"          // self
 
@@ -338,7 +338,7 @@ void Phonebook::unlock() const
 
 std::map<contact_id_t,const Contact *> Phonebook::find_contacts(
         uint32_t * total_size,
-        user_id_t user_id, const std::string & regex, uint32_t page_size, uint32_t page_num )
+        user_id_t user_id, const std::string & regex, uint32_t page_size, uint32_t page_num ) const
 {
     dummy_log_debug( log_id_, "find_contacts: %u '%s' %u %u", user_id, regex.c_str(), page_size, page_num );
 
@@ -382,7 +382,7 @@ std::map<contact_id_t,const Contact *> Phonebook::find_contacts(
 
     * total_size  = i;
 
-    dummy_log_debug( log_id_, "find_contacts: user id %u, regex '%s' - found %u records, %u returned", user_id, regex.c_str(), total_size, res.size() );
+    dummy_log_debug( log_id_, "find_contacts: user id %u, regex '%s' - found %u records, %u returned", user_id, regex.c_str(), * total_size, res.size() );
 
     return res;
 }
@@ -595,14 +595,38 @@ std::mutex      & Phonebook::get_mutex() const
     return mutex_;
 }
 
+std::string to_string_euro( const Date & d )
+{
+    return std::to_string( d.day ) + "."
+            + std::to_string( d.month ) + "."
+            + std::to_string( d.year );
+}
+
+std::string to_string_us( const Date & d )
+{
+    return std::to_string( d.month ) + "/"
+            + std::to_string( d.day ) + "/"
+            + std::to_string( d.year );
+}
+
 bool Phonebook::is_match( const Contact & c, const std::string & regex )
 {
     if( utils::regex_match_i( c.name, regex )
         || utils::regex_match_i( c.first_name, regex )
         || utils::regex_match_i( c.notice, regex ) )
-    {
         return true;
+
+    for( auto & p : c.map_id_to_phone )
+    {
+        if( utils::regex_match( p.second.phone_number, regex ) )
+            return true;
     }
+
+    if( utils::regex_match( to_string_euro( c.birthday ), regex ) )
+        return true;
+
+    if( utils::regex_match( to_string_us( c.birthday ), regex ) )
+        return true;
 
     return false;
 }
