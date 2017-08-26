@@ -19,14 +19,14 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 7724 $ $Date:: 2017-08-24 #$ $Author: serge $
+// $Revision: 7746 $ $Date:: 2017-08-25 #$ $Author: serge $
 
 #include "phonebook.h"          // self
 
 #include "utils/dummy_logger.h"     // dummy_log_debug
 #include "utils/assert.h"           // ASSERT
 #include "utils/mutex_helper.h"     // MUTEX_SCOPE_LOCK
-#include "utils/regex_match.h"      // utils::regex_match_i()
+#include "utils/match_filter.h"     // utils::match_filter()
 
 #include "str_helper.h"             // StrHelper
 
@@ -338,9 +338,9 @@ void Phonebook::unlock() const
 
 std::map<contact_id_t,const Contact *> Phonebook::find_contacts(
         uint32_t * total_size,
-        user_id_t user_id, const std::string & regex, uint32_t page_size, uint32_t page_num ) const
+        user_id_t user_id, const std::string & filter, uint32_t page_size, uint32_t page_num ) const
 {
-    dummy_log_debug( log_id_, "find_contacts: %u '%s' %u %u", user_id, regex.c_str(), page_size, page_num );
+    dummy_log_debug( log_id_, "find_contacts: %u '%s' %u %u", user_id, filter.c_str(), page_size, page_num );
 
     std::map<contact_id_t,const Contact *> res;
 
@@ -368,7 +368,7 @@ std::map<contact_id_t,const Contact *> Phonebook::find_contacts(
 
         ASSERT( contact );
 
-        if( is_match( * contact, regex ) )
+        if( is_match( * contact, filter ) )
         {
             // return only those elements, which belong to the desired page
             if( i >= offset && i < offset_end )
@@ -382,7 +382,7 @@ std::map<contact_id_t,const Contact *> Phonebook::find_contacts(
 
     * total_size  = i;
 
-    dummy_log_debug( log_id_, "find_contacts: user id %u, regex '%s' - found %u records, %u returned", user_id, regex.c_str(), * total_size, res.size() );
+    dummy_log_debug( log_id_, "find_contacts: user id %u, filter '%s' - found %u records, %u returned", user_id, filter.c_str(), * total_size, res.size() );
 
     return res;
 }
@@ -609,23 +609,23 @@ std::string to_string_us( const Date & d )
             + std::to_string( d.year );
 }
 
-bool Phonebook::is_match( const Contact & c, const std::string & regex )
+bool Phonebook::is_match( const Contact & c, const std::string & filter )
 {
-    if( utils::regex_match_i( c.name, regex )
-        || utils::regex_match_i( c.first_name, regex )
-        || utils::regex_match_i( c.notice, regex ) )
+    if( utils::match_filter( c.name, filter, true )
+        || utils::match_filter( c.first_name, filter, true )
+        || utils::match_filter( c.notice, filter, true ) )
         return true;
 
     for( auto & p : c.map_id_to_phone )
     {
-        if( utils::regex_match( p.second.phone_number, regex ) )
+        if( utils::match_filter( p.second.phone_number, filter ) )
             return true;
     }
 
-    if( utils::regex_match( to_string_euro( c.birthday ), regex ) )
+    if( utils::match_filter( to_string_euro( c.birthday ), filter ) )
         return true;
 
-    if( utils::regex_match( to_string_us( c.birthday ), regex ) )
+    if( utils::match_filter( to_string_us( c.birthday ), filter ) )
         return true;
 
     return false;

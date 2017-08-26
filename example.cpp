@@ -19,7 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 7722 $ $Date:: 2017-08-24 #$ $Author: serge $
+// $Revision: 7746 $ $Date:: 2017-08-25 #$ $Author: serge $
 
 #include <iostream>                         // std::cout
 
@@ -555,7 +555,7 @@ void test_14( const phonebook::Phonebook & pb )
 
     uint32_t total_size;
 
-    auto res = pb.find_contacts( & total_size, 1, ".*", 100, 0 );
+    auto res = pb.find_contacts( & total_size, 1, "", 100, 0 );
 
     print_contacts( res );
 }
@@ -566,7 +566,7 @@ void test_15( const phonebook::Phonebook & pb  )
 
     uint32_t total_size;
 
-    auto res = pb.find_contacts( & total_size, 1, ".*ва.*", 100, 0 );
+    auto res = pb.find_contacts( & total_size, 1, "ва", 100, 0 );
 
     print_contacts( res );
 }
@@ -577,7 +577,7 @@ void test_16( const phonebook::Phonebook & pb  )
 
     uint32_t total_size;
 
-    auto res = pb.find_contacts( & total_size, 2, ".*sch.*", 100, 0 );
+    auto res = pb.find_contacts( & total_size, 2, "sch", 100, 0 );
 
     print_contacts( res );
 }
@@ -588,7 +588,7 @@ void test_17( const phonebook::Phonebook & pb  )
 
     uint32_t total_size;
 
-    auto res = pb.find_contacts( & total_size, 2, ".*mann.*", 100, 0 );
+    auto res = pb.find_contacts( & total_size, 2, "mann", 100, 0 );
 
     print_contacts( res );
 }
@@ -599,7 +599,7 @@ void test_18( const phonebook::Phonebook & pb  )
 
     uint32_t total_size;
 
-    auto res = pb.find_contacts( & total_size, 2, ".*176.*", 100, 0 );
+    auto res = pb.find_contacts( & total_size, 2, "176", 100, 0 );
 
     print_contacts( res );
 }
@@ -610,7 +610,7 @@ void test_19( const phonebook::Phonebook & pb  )
 
     uint32_t total_size;
 
-    auto res = pb.find_contacts( & total_size, 2, ".*8\\.10.*", 100, 0 );
+    auto res = pb.find_contacts( & total_size, 2, "8.10", 100, 0 );
 
     print_contacts( res );
 }
@@ -621,7 +621,7 @@ void test_20( const phonebook::Phonebook & pb  )
 
     uint32_t total_size;
 
-    auto res = pb.find_contacts( & total_size, 2, ".*10/8.*", 100, 0 );
+    auto res = pb.find_contacts( & total_size, 2, "10/8", 100, 0 );
 
     print_contacts( res );
 }
@@ -632,7 +632,7 @@ void test_21( const phonebook::Phonebook & pb  )
 
     uint32_t total_size;
 
-    auto res = pb.find_contacts( & total_size, 2, ".*1976.*", 100, 0 );
+    auto res = pb.find_contacts( & total_size, 2, "1976", 100, 0 );
 
     print_contacts( res );
 }
@@ -643,7 +643,7 @@ void test_22( const phonebook::Phonebook & pb  )
 
     uint32_t total_size;
 
-    auto res = pb.find_contacts( & total_size, 3, ".*", 100, 0 );
+    auto res = pb.find_contacts( & total_size, 3, "", 100, 0 );
 
     print_contacts( res );
 }
@@ -654,7 +654,7 @@ void test_23( const phonebook::Phonebook & pb  )
 
     uint32_t total_size;
 
-    auto res = pb.find_contacts( & total_size, 2, ".*", 10, 0 );
+    auto res = pb.find_contacts( & total_size, 2, "", 10, 0 );
 
     print_contacts( res );
 }
@@ -665,7 +665,7 @@ void test_24( const phonebook::Phonebook & pb  )
 
     uint32_t total_size;
 
-    auto res = pb.find_contacts( & total_size, 2, ".*", 10, 1 );
+    auto res = pb.find_contacts( & total_size, 2, "", 10, 1 );
 
     print_contacts( res );
 }
@@ -676,7 +676,7 @@ void test_25( const phonebook::Phonebook & pb  )
 
     uint32_t total_size;
 
-    auto res = pb.find_contacts( & total_size, 2, ".*", 10, 2 );
+    auto res = pb.find_contacts( & total_size, 2, "", 10, 2 );
 
     print_contacts( res );
 }
