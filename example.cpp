@@ -19,12 +19,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 7746 $ $Date:: 2017-08-25 #$ $Author: serge $
+// $Revision: 8576 $ $Date:: 2018-01-19 #$ $Author: serge $
 
 #include <iostream>                         // std::cout
 
 #include "utils/dummy_logger.h"             // dummy_log_set_log_level
-#include "utils/logfile_time_writer.h"      // LogfileTimeWriter
 
 #include "phonebook.h"
 #include "str_helper.h"                     // StrHelper
