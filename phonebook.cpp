@@ -19,12 +19,12 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 */
 
-// $Revision: 8203 $ $Date:: 2017-10-27 #$ $Author: serge $
+// $Revision: 10607 $ $Date:: 2019-03-10 #$ $Author: serge $
 
 #include "phonebook.h"          // self
 
 #include "utils/dummy_logger.h"     // dummy_log_debug
-#include "utils/assert.h"           // ASSERT
+#include "utils/utils_assert.h"           // ASSERT
 #include "utils/mutex_helper.h"     // MUTEX_SCOPE_LOCK
 #include "utils/match_filter.h"     // utils::match_filter()
 
